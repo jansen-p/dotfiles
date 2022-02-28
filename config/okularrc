@@ -1,0 +1,21 @@
+Height 1080=1080
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAAAAA8AAAAQXAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAA
+Width 1920=960
+
+[Desktop Entry]
+FullScreen=false
+shouldShowMenuBarComingFromFullScreen=false
+shouldShowToolBarComingFromFullScreen=false
+
+[MainWindow]
+Height 1080=1080
+Height 1440=1422
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAAAAB4AAAAQmAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgAAAAAA/////wAAAAAAAAAA
+ToolBarsMovable=Disabled
+Width 1920=960
+Width 3440=1720
+
+[Recent Files]
+Name9[$e]=pr.pdf

@@ -1,0 +1,39 @@
+$print_type = 'pdf';
+$pdf_mode = 1;
+$bibtex_use = 2;
+$latex = 'latex --src-specials %O %S';
+$pdflatex = 'xelatex -file-line-error -synctex=1 -interaction=nonstopmode -shell-escape %S %O -verbose';
+
+# If zero, check for a previously running previewer on the same file and update it.  If nonzero, always start a new previewer.
+$new_viewer_always = 0;
+
+# How to make the PDF viewer update its display when the PDF file changes.  See the man page for a description of each method.
+$pdf_update_method = 1;
+
+# When PDF update method 2 is used, the number of the Unix signal to send
+$pdf_update_signal = 'SIGHUP';
+
+add_cus_dep('nlo', 'nls', 0, 'nlo2nls');
+sub nlo2nls {
+  system("makeindex $_[0].nlo -s nomencl.ist -o $_[0].nls -t $_[0].nlg" );
+}
+
+
+
+
+
+
+
+
+
+#$pdflatex='pdflatex -interaction=nonstopmode';
+#
+#$pdf_previewer = "start zathura";
+#
+#$pdf_update_method=0;
+#
+#$pdf_mode = 1;
+#
+#$dvi_mode = 0;
+#
+#$preview_continuous_mode = 1;

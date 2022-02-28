@@ -1,0 +1,133 @@
+set nocompatible "This fixes the problem where arrow keys do not function properly on some systems.
+filetype on
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+	Plugin 'VundleVim/Vundle.vim'
+	Plugin 'xavierd/clang_complete'
+	Plugin 'Raimondi/delimitMate'
+	Plugin 'junegunn/fzf'
+	Plugin 'junegunn/fzf.vim'
+	Plugin 'scrooloose/nerdtree'
+	Plugin 'Xuyuanp/nerdtree-git-plugin'
+	Plugin 'ervandew/supertab'
+	Plugin 'vim-airline/vim-airline'
+	Plugin 'vim-airline/vim-airline-themes'
+	"Plugin 'SirVer/ultisnips'
+	"Plugin 'tenfyzhong/CompleteParameter.vim'
+	Plugin 'Chiel92/vim-autoformat'
+	"Plugin 'vim-ctrlspace/vim-ctrlspace'
+	Plugin 'easymotion/vim-easymotion'
+	Plugin 'terryma/vim-multiple-cursors'
+	"Plugin 'jupyter-vim/jupyter-vim'
+	Plugin 'tpope/vim-surround'
+	"Plugin 'honza/vim-snippets'
+	Plugin 'vim-scripts/Visual-Mark'
+	"Plugin 'kshenoy/vim-signature' "mark manager, displays them etc
+	Plugin 'brennier/quicktex'
+	Plugin 'lervag/vimtex'
+ 	Plugin 'gauteh/vim-evince-synctex'
+	"Plugin 'ycm-core/YouCompleteMe'
+	Plugin 'jpalardy/vim-slime'
+	Plugin 'ryanoasis/vim-devicons'
+	"Plugin 'francoiscabrol/ranger.vim'
+	"Plugin 'vim-syntastic/syntastic'
+call vundle#end()
+
+
+filetype plugin indent on
+set encoding=UTF-8
+"set guifont=Anonymice\ Nerd\ Font\ Mono\ 11
+
+let mapleader = ","
+"au VimEnter * let g:ycm_semantic_triggers.tex=g:vimtex#re#youcompleteme
+
+so ~/.dotfiles/coding/vim/plugins.vim
+so ~/.dotfiles/coding/vim/maps2.vim
+
+colorscheme jellybeans "Changes the color scheme. Change this to your liking. Lookin /usr/share/vim/vim81/colors/ for options.
+syntax on  "Enables syntax highlighting for programming languages
+
+"sets
+set mouse=a  "Allows you to click around the text editor with your mouse to move the cursor
+set showmatch "Highlights matching brackets in programming languages
+set guicursor+=n-v-c:blinkon0
+"set guifont=DejaVuSansCode:h10
+set guifont=oriya:h10
+set autoindent  "If you're indented, new lines will also be indented
+set hlsearch
+set smartindent  "Automatically indents lines after opening a bracket in programming languages
+set clipboard=unnamedplus
+set foldcolumn=1
+set backspace=2  "This makes the backspace key function like it does in other programs.
+set tabstop=4  "How much space Vim gives to a tab
+set smarttab  "Improves tabbing
+set ai "Auto indent
+set si "Smart indent
+set wrap "Wrap lines
+set shiftwidth=4  "Assists code formatting
+set autochdir
+"setlocal spell  "Enables spell checking (CURRENTLY DISABLED because it's kinda annoying). Make sure to uncomment the next line if you use this.
+"set spellfile=~/.vimwords.add  "The location of the spellcheck dictionary. Uncomment this line if you uncomment the previous line.
+"set foldmethod=indent  "Lets you hide sections of code
+set foldenable
+"disable flashing
+set t_vb=
+
+"set cursorline
+set visualbell   "stop beeping
+set grepprg=grep\ -nH\ $*
+source $VIMRUNTIME/menu.vim
+map ran :!termite -e ranger &<CR>
+map cdr cd %:d 
+
+"python
+au BufNewFile,BufRead *.py:
+			\ set tabstop=4
+			\ set softtabstop=4
+			\ set shiftwidth=4
+			\ set textwidth=79
+			\ set expandtab
+			\ set autoindent
+			\ set fileformat=unix
+"au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+set encoding=utf-8
+
+"ROS highlighting
+au BufNewFile,BufRead *.launch set filetype=xml
+
+"for using both indent and manual folding
+"augroup vimrc
+"	au BufReadPre * setlocal foldmethod=indent
+"	au BufWinEnter * if &fdm == 'indent' | setlocal foldmethod=manual | endif
+"augroup END
+setlocal foldmethod=manual
+"for remembering folds
+try
+	autocmd BufWinLeave * silent! mkview
+	"load folds if filename not empty
+	"autocmd BufWinEnter * if @% != '' | loadview | endif
+	autocmd BufWinEnter * silent! loadview
+catch
+endtry
+
+let g:netrw_liststyle = 3 "tree view
+let g:netrw_browse_split = 1 "open new windows in new tab
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_altv = 1
+let g:netrw_winsize = 30
+let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
+
+"Enables line numbering
+set number relativenumber
+"for switching numbering modes
+"augroup numbertoggle
+"	autocmd!
+"	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+"	autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+"augroup END
+
+let &t_SI.="\e[5 q" "SI = INSERT mode
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+let &t_EI.="\e[1 q" "EI = NORMAL mode

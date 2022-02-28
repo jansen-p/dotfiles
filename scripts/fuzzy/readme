@@ -1,0 +1,13 @@
+The current directory is saved in ~/.location.
+
+Works together with i3-workspace groups: The i3-config must be configured such that each time the workspace is changed, getLoc.sh is also executed.
+This reads the name of the new workspace, and uses dict.py to translate it into a valid path.
+dict.py must be extended depending on usage!
+
+Can define a shortcut which launches programs like ranger directly with this path, for quick navigation.
+
+Main part of the script: fuz.sh
+
+Starts a fuzzy-finder (fzf) in the translated path, in beginning of fuz.sh are the programs for opening filetypes specified (uses ex.sh to open files).
+Press ctrl-n to manually switch the working directory of the fuzzy-finder, which opens rofi for selecting new location. Overwrites the file which is set by getLoc.sh
+A bit redundant to dict.sh, but here we don't need only a translation to the path but also an interactive script

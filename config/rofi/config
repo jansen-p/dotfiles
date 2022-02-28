@@ -1,0 +1,10 @@
+rofi.modi: drun,window,run
+rofi.lines: 15
+rofi.columns: 1
+rofi.width: 50
+rofi.drun-icon-theme: Pop
+rofi.show-icons: true
+rofi.matching: fuzzy
+rofi.sidebar-mode: true
+rofi.m: -4
+rofi.theme: bala

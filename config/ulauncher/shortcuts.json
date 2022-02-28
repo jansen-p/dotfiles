@@ -1,0 +1,102 @@
+{
+    "58bd24d2-93aa-44a8-8b63-22af0d952ab1": {
+        "id": "58bd24d2-93aa-44a8-8b63-22af0d952ab1",
+        "name": "Google Search",
+        "keyword": "g",
+        "cmd": "firefox -new-window https://www.google.com/search?q=$1\n",
+        "icon": "/usr/share/ulauncher/media/google-search-icon.png",
+        "is_default_search": true,
+        "run_without_argument": false,
+        "added": 1635443151.3528056
+    },
+    "b8cb3521-7c2c-448d-a998-748c988ad250": {
+        "id": "b8cb3521-7c2c-448d-a998-748c988ad250",
+        "name": "Stack Overflow",
+        "keyword": "so",
+        "cmd": "https://stackoverflow.com/search?q=%s",
+        "icon": "/usr/share/ulauncher/media/stackoverflow-icon.svg",
+        "is_default_search": true,
+        "run_without_argument": false,
+        "added": 1635443151.3529532
+    },
+    "c8ccfd0a-f99a-4f48-b7b7-910d678b7237": {
+        "id": "c8ccfd0a-f99a-4f48-b7b7-910d678b7237",
+        "name": "setWacom",
+        "keyword": "set",
+        "cmd": "~/.bin/setWacom.sh $1",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": false,
+        "added": 1635927393.1899347
+    },
+    "3e9947dc-57aa-4ea1-a3e3-73ad5cc03f9c": {
+        "id": "3e9947dc-57aa-4ea1-a3e3-73ad5cc03f9c",
+        "name": "Extent above",
+        "keyword": "above",
+        "cmd": "~/.bin/dual-screen.sh --above --auto",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": true,
+        "added": 1640039348.5755002
+    },
+    "5da2ffec-8bf3-4ca2-8287-857c1b77c582": {
+        "id": "5da2ffec-8bf3-4ca2-8287-857c1b77c582",
+        "name": "Extend right",
+        "keyword": "right",
+        "cmd": "~/.bin/dual-screen.sh --right-of --auto",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": true,
+        "added": 1640039363.9300888
+    },
+    "c0127c03-6bb6-48b4-9275-e73542b2790b": {
+        "id": "c0127c03-6bb6-48b4-9275-e73542b2790b",
+        "name": "Extend left",
+        "keyword": "left",
+        "cmd": "~/.bin/dual-screen.sh --left-of --auto",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": true,
+        "added": 1640039374.7633286
+    },
+    "86dfa0df-70f3-4335-bdab-115d9abcacce": {
+        "id": "86dfa0df-70f3-4335-bdab-115d9abcacce",
+        "name": "Only internal",
+        "keyword": "internal",
+        "cmd": "~/.bin/dual-screen.sh only_internal",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": true,
+        "added": 1640039487.8517826
+    },
+    "66b8811a-765c-4fc0-af16-8a460b67eab7": {
+        "id": "66b8811a-765c-4fc0-af16-8a460b67eab7",
+        "name": "Only external",
+        "keyword": "external",
+        "cmd": "~/.bin/dual-screen.sh only_external",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": true,
+        "added": 1640039504.2770147
+    },
+    "a17fd38c-9536-46d5-be37-6c0a096d18c3": {
+        "id": "a17fd38c-9536-46d5-be37-6c0a096d18c3",
+        "name": "set path",
+        "keyword": "un",
+        "cmd": "echo $1 | python3 ~/.bin/fuzzy/dic.py > ~/.local/share/fuzzyLocation",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": false,
+        "added": 1641994395.049587
+    },
+    "0e53471f-d6bd-42c6-80ac-8dd1417ae2ca": {
+        "id": "0e53471f-d6bd-42c6-80ac-8dd1417ae2ca",
+        "name": "switch dir",
+        "keyword": "u",
+        "cmd": "termite -e ~/.bin/fuzzy/cd_ranger.sh --hold",
+        "icon": null,
+        "is_default_search": false,
+        "run_without_argument": false,
+        "added": 1642080251.253118
+    }
+}

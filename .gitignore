@@ -1,0 +1,11 @@
+config/xournalpp/autosave/*
+config/xournalpp/metadata/*
+
+**/__pycache__
+**/.mypy_cache
+scripts/fuzzy/.navi_hist/*
+
+zsh/zshAliasPrivate
+zsh/oh-my-zsh/cache/*
+config/ranger/bookmarks
+docs/*

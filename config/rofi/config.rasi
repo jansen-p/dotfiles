@@ -1,0 +1,11 @@
+configuration {
+	modi: "drun,window,run";
+	width: 50;
+	lines: 15;
+	columns: 1;
+	show-icons: true;
+	sidebar-mode: true;
+	matching: "fuzzy";
+	m: "-4";
+	theme: "bala";
+}

@@ -1,0 +1,66 @@
+{
+  "Cell": {
+    "cm_config": {
+      "lineNumbers": false
+    }
+  },
+  "load_extensions": {
+    "nbextensions_configurator/config_menu/main": true,
+    "contrib_nbextensions_help_item/main": true,
+    "codefolding/main": true,
+    "execute_time/main": true,
+    "execute_time": false,
+    "code_prettify/code_prettify": false,
+    "keyboard_shortcut_editor/main": true,
+    "runtools/main": true,
+    "scratchpad/main": false,
+    "toc2/main": true,
+    "varInspector/main": true,
+    "livemdpreview/livemdpreview": true,
+    "snippets_menu/main": true,
+    "table_beautifier/main": true,
+    "vim_binding/vim_binding": true,
+    "zenmode/main": true
+  },
+  "zenmode_set_zenmode_on_load": false,
+  "keys": {
+    "command": {
+      "bind": {
+        "r": "jupyter-notebook:restart-kernel",
+        "y": "jupyter-notebook:copy-cell",
+        "p": "jupyter-notebook:paste-cell-below",
+        "c": "jupyter-notebook:change-cell-to-code",
+        "l": "jupyter-notebook:select-previous-cell",
+        "k": "jupyter-notebook:select-next-cell",
+        "i": "jupyter-notebook:enter-edit-mode",
+        "d,d": "jupyter-notebook:cut-cell",
+        "shift-p": "jupyter-notebook:paste-cell-above",
+        "shift-o": "jupyter-notebook:insert-cell-above",
+        "o": "jupyter-notebook:insert-cell-below",
+        "ctrl-k": "jupyter-notebook:scroll-notebook-down",
+        "ctrl-l": "jupyter-notebook:scroll-notebook-up",
+        "ctrl-o": "jupyter-notebook:toggle-cell-output-collapsed"
+      },
+      "unbind": [
+        "b",
+        "o",
+        "a",
+        "i,i",
+        "c",
+        "y",
+        "v",
+        "shift-v",
+        "p",
+        "k",
+        "l",
+        "j",
+        "up",
+        "down",
+        "enter",
+        "x",
+        "d,d",
+        "shift-o"
+      ]
+    }
+  }
+}

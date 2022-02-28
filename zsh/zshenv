@@ -1,0 +1,6 @@
+export ZSH=~/.config/oh-my-zsh
+export EDITOR='vim -w'
+export FUZZY=$HOME/.bin/fuzzy/
+export NAS=/run/Parts/Exch/SynologyDrive
+
+PATH=/bin:~/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:~/miniconda3/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/usr/lib/jvm/java-11-openjdk/bin:~/.bin:~/.binaries:/usr/local/go/bin:~/.cargo/bin

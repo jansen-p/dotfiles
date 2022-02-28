@@ -1,0 +1,9 @@
+set selection-clipboard clipboard
+set zoom-step 10
+set scroll-step 100
+set show-scrollbars true
+set statusbar-v-padding 2
+set incremental-search true
+set statusbar-basename true
+set synctex true
+set synctex-editor-command "gvim +%{line} %{input}"

@@ -4,13 +4,14 @@ filetype on
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 	Plugin 'VundleVim/Vundle.vim'
-	Plugin 'xavierd/clang_complete'
+	"Plugin 'xavierd/clang_complete'
 	Plugin 'Raimondi/delimitMate'
 	Plugin 'junegunn/fzf'
 	Plugin 'junegunn/fzf.vim'
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Xuyuanp/nerdtree-git-plugin'
 	Plugin 'ervandew/supertab'
+	Plugin 'davidhalter/jedi-vim'
 	Plugin 'vim-airline/vim-airline'
 	Plugin 'vim-airline/vim-airline-themes'
 	"Plugin 'SirVer/ultisnips'

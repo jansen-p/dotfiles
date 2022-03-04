@@ -3,9 +3,13 @@ config/xournalpp/metadata/*
 
 **/__pycache__
 **/.mypy_cache
+*.swp
 scripts/fuzzy/.navi_hist/*
 
 zsh/zshAliasPrivate
 zsh/oh-my-zsh/cache/*
 config/ranger/bookmarks
+config/ranger/history
+config/ranger/tagged
+
 docs/*

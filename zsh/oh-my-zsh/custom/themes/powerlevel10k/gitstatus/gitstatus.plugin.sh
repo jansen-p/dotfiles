@@ -35,12 +35,27 @@
 #
 #   -D        Unless this option is specified, report zero staged, unstaged and conflicted
 #             changes for repositories with bash.showDirtyState = false.
+#
+#   -r INT    Close git repositories that haven't been used for this many seconds. This is
+#             meant to release resources such as memory and file descriptors. The next request
+#             for a repo that's been closed is much slower than for a repo that hasn't been.
+#             Negative value means infinity. The default is 3600 (one hour).
 function gitstatus_start() {
+  if [[ "$BASH_VERSION" < 4 ]]; then
+    >&2 printf 'gitstatus_start: need bash version >= 4.0, found %s\n' "$BASH_VERSION"
+    >&2 printf '\n'
+    >&2 printf 'To see the version of the current shell, type:\n'
+    >&2 printf '\n'
+    >&2 printf '    \033[32mecho\033[0m \033[33m"$BASH_VERSION"\033[0m\n'
+    >&2 printf '\n'
+    >&2 printf 'The output of `\033[32mbash\033[0m --version` may be different and is not relevant.\n'
+    return 1
+  fi
+
   unset OPTIND
-  local opt timeout=5 max_dirty=-1 extra_flags
+  local opt timeout=5 max_dirty=-1 ttl=3600 extra_flags=
   local max_num_staged=1 max_num_unstaged=1 max_num_conflicted=1 max_num_untracked=1
-  local ignore_status_show_untracked_files
-  while getopts "t:s:u:c:d:m:eUWD" opt; do
+  while getopts "t:s:u:c:d:m:r:eUWD" opt; do
     case "$opt" in
       t) timeout=$OPTARG;;
       s) max_num_staged=$OPTARG;;
@@ -48,6 +63,7 @@ function gitstatus_start() {
       c) max_num_conflicted=$OPTARG;;
       d) max_num_untracked=$OPTARG;;
       m) max_dirty=$OPTARG;;
+      r) ttl=$OPTARG;;
       e) extra_flags+='--recurse-untracked-dirs ';;
       U) extra_flags+='--ignore-status-show-untracked-files ';;
       W) extra_flags+='--ignore-bash-show-untracked-files ';;
@@ -69,7 +85,7 @@ function gitstatus_start() {
     local gitstatus_plugin_dir="$PWD"
   fi
 
-  local tmpdir req_fifo resp_fifo
+  local tmpdir req_fifo resp_fifo culprit
 
   function gitstatus_start_impl() {
     local log_level="${GITSTATUS_LOG_LEVEL:-}"
@@ -102,9 +118,15 @@ function gitstatus_start() {
       --max-num-conflicted="$max_num_conflicted"
       --max-num-untracked="$max_num_untracked"
       --dirty-max-index-size="$max_dirty"
+      --repo-ttl-seconds="$ttl"
       $extra_flags)
 
-    tmpdir="$(command mktemp -d "${TMPDIR:-/tmp}"/gitstatus.bash.$$.XXXXXXXXXX)" || return
+    if [[ -n "$TMPDIR" && ( ( -d "$TMPDIR" && -w "$TMPDIR" ) || ! ( -d /tmp && -w /tmp ) ) ]]; then
+      local tmpdir=$TMPDIR
+    else
+      local tmpdir=/tmp
+    fi
+    tmpdir="$(command mktemp -d "$tmpdir"/gitstatus.bash.$$.XXXXXXXXXX)" || return
 
     if [[ -n "$log_level" ]]; then
       GITSTATUS_DAEMON_LOG="$tmpdir"/daemon.log
@@ -125,7 +147,7 @@ function gitstatus_start() {
 
         (
           local fd_in fd_out
-          exec {fd_in}<"$req_fifo" {fd_out}>"$resp_fifo" || exit
+          exec {fd_in}<"$req_fifo" {fd_out}>>"$resp_fifo" || exit
           echo "$BASHPID" >&"$fd_out"
 
           local _gitstatus_bash_daemon _gitstatus_bash_version _gitstatus_bash_downloaded
@@ -137,7 +159,7 @@ function gitstatus_start() {
           }
 
           set -- -d "$gitstatus_plugin_dir" -s "$uname_s" -m "$uname_m" \
-            -p "printf '.\036' >&$fd_out" -- _gitstatus_set_daemon
+            -p "printf '.\036' >&$fd_out" -e "$fd_out" -- _gitstatus_set_daemon
           [[ "${GITSTATUS_AUTO_INSTALL:-1}" -ne 0 ]]  || set -- -n "$@"
           source "$gitstatus_plugin_dir"/install      || return
           [[ -n "$_gitstatus_bash_daemon" ]]          || return
@@ -146,8 +168,18 @@ function gitstatus_start() {
 
           local sig=(TERM ILL PIPE)
 
+          if (( UID == EUID )); then
+            local home=~
+          else
+            local user
+            user="$(command id -un)"            || return
+            [[ "$user" =~ ^[a-zA-Z0-9_,.-]+$ ]] || return
+            eval "local home=~$user"
+            [[ -n "$home" ]]                    || return
+          fi
+
           if [[ -x "$_gitstatus_bash_daemon" ]]; then
-            "$_gitstatus_bash_daemon" \
+            HOME="$home" "$_gitstatus_bash_daemon" \
               -G "$_gitstatus_bash_version" "${daemon_args[@]}" <&"$fd_in" >&"$fd_out" &
             local pid=$!
             trap "trap - ${sig[*]}; kill $pid &>/dev/null" ${sig[@]}
@@ -155,8 +187,8 @@ function gitstatus_start() {
             local ret=$?
             trap - ${sig[@]}
             case "$ret" in
-              0|129|130|131|137|141|143)
-                echo -nE $'bye\x1f0\x1e' >&"$fd_out"
+              0|129|130|131|137|141|143|159)
+                echo -nE $'}bye\x1f0\x1e' >&"$fd_out"
                 exit "$ret"
               ;;
             esac
@@ -176,31 +208,34 @@ function gitstatus_start() {
           [[ -n "$_gitstatus_bash_version" ]]      || return
           [[ "$_gitstatus_bash_downloaded" == 1 ]] || return
 
-          "$_gitstatus_bash_daemon" \
+          HOME="$home" "$_gitstatus_bash_daemon" \
             -G "$_gitstatus_bash_version" "${daemon_args[@]}" <&"$fd_in" >&"$fd_out" &
           local pid=$!
           trap "trap - ${sig[*]}; kill $pid &>/dev/null" ${sig[@]}
           wait "$pid"
           trap - ${sig[@]}
-          echo -nE $'bye\x1f0\x1e' >&"$fd_out"
+          echo -nE $'}bye\x1f0\x1e' >&"$fd_out"
         ) & disown
       ) & disown
     } 0</dev/null &>"$GITSTATUS_DAEMON_LOG"
 
-    exec {_GITSTATUS_REQ_FD}>"$req_fifo" {_GITSTATUS_RESP_FD}<"$resp_fifo"   || return
-    command rm -f -- "$req_fifo" "$resp_fifo"                                || return
+    exec {_GITSTATUS_REQ_FD}>>"$req_fifo" {_GITSTATUS_RESP_FD}<"$resp_fifo"   || return
+    command rm -f -- "$req_fifo" "$resp_fifo"                                 || return
     [[ "$GITSTATUS_DAEMON_LOG" != /dev/null ]] || command rmdir -- "$tmpdir" 2>/dev/null
 
     IFS='' read -r -u $_GITSTATUS_RESP_FD GITSTATUS_DAEMON_PID || return
     [[ "$GITSTATUS_DAEMON_PID" == [1-9]* ]] || return
 
     local reply
-    echo -nE $'hello\x1f\x1e' >&$_GITSTATUS_REQ_FD                     || return
+    echo -nE $'}hello\x1f\x1e' >&$_GITSTATUS_REQ_FD || return
     local dl=
     while true; do
-      IFS='' read -rd $'\x1e' -u $_GITSTATUS_RESP_FD -t "$timeout" reply || return
-      [[ "$reply" == $'hello\x1f0' ]] && break
-      [[ "$reply" == . ]] || return
+      reply=
+      if ! IFS='' read -rd $'\x1e' -u $_GITSTATUS_RESP_FD -t "$timeout" reply; then
+        culprit="$reply"
+        return 1
+      fi
+      [[ "$reply" == $'}hello\x1f0' ]] && break
       if [[ -z "$dl" ]]; then
         dl=1
         if [[ -t 2 ]]; then
@@ -228,8 +263,11 @@ function gitstatus_start() {
   }
 
   if ! gitstatus_start_impl; then
-    echo "" >&2
-    echo "gitstatus_start: failed to start gitstatusd" >&2
+    >&2 printf '\n'
+    >&2 printf '[\033[31mERROR\033[0m]: gitstatus failed to initialize.\n'
+    if [[ -n "${culprit-}" ]]; then
+      >&2 printf '\n%s\n' "$culprit"
+    fi
     [[ -z "${req_fifo:-}"  ]] || command rm -f "$req_fifo"
     [[ -z "${resp_fifo:-}" ]] || command rm -f "$resp_fifo"
     unset -f gitstatus_start_impl
@@ -237,50 +275,18 @@ function gitstatus_start() {
     return 1
   fi
 
+  export _GITSTATUS_CLIENT_PID _GITSTATUS_REQ_FD _GITSTATUS_RESP_FD GITSTATUS_DAEMON_PID
   unset -f gitstatus_start_impl
-
-  if [[ "${GITSTATUS_STOP_ON_EXEC:-1}" == 1 ]]; then
-    type -t _gitstatus_exec &>/dev/null    || function _gitstatus_exec()    { exec    "$@"; }
-    type -t _gitstatus_builtin &>/dev/null || function _gitstatus_builtin() { builtin "$@"; }
-
-    function _gitstatus_exec_wrapper() {
-      (( ! $# )) || gitstatus_stop
-      local ret=0
-      _gitstatus_exec "$@" || ret=$?
-      [[ -n "${GITSTATUS_DAEMON_PID:-}" ]] || gitstatus_start || true
-      return $ret
-    }
-
-    function _gitstatus_builtin_wrapper() {
-      while [[ "${1:-}" == builtin ]]; do shift; done
-      if [[ "${1:-}" == exec ]]; then
-        _gitstatus_exec_wrapper "${@:2}"
-      else
-        _gitstatus_builtin "$@"
-      fi
-    }
-
-    alias exec=_gitstatus_exec_wrapper
-    alias builtin=_gitstatus_builtin_wrapper
-
-    _GITSTATUS_EXEC_HOOK=1
-  else
-    unset _GITSTATUS_EXEC_HOOK
-  fi
 }
 
 # Stops gitstatusd if it's running.
 function gitstatus_stop() {
-  [[ "${_GITSTATUS_CLIENT_PID:-$BASHPID}" == "$BASHPID" ]]                         || return 0
-  [[ -z "${_GITSTATUS_REQ_FD:-}"    ]] || exec {_GITSTATUS_REQ_FD}>&-              || true
-  [[ -z "${_GITSTATUS_RESP_FD:-}"   ]] || exec {_GITSTATUS_RESP_FD}>&-             || true
-  [[ -z "${GITSTATUS_DAEMON_PID:-}" ]] || kill "$GITSTATUS_DAEMON_PID" &>/dev/null || true
-  if [[ -n "${_GITSTATUS_EXEC_HOOK:-}" ]]; then
-    unalias exec builtin &>/dev/null || true
-    function _gitstatus_exec_wrapper()    { _gitstatus_exec    "$@"; }
-    function _gitstatus_builtin_wrapper() { _gitstatus_builtin "$@"; }
+  if [[ "${_GITSTATUS_CLIENT_PID:-$BASHPID}" == "$BASHPID" ]]; then
+    [[ -z "${_GITSTATUS_REQ_FD:-}"    ]] || exec {_GITSTATUS_REQ_FD}>&-              || true
+    [[ -z "${_GITSTATUS_RESP_FD:-}"   ]] || exec {_GITSTATUS_RESP_FD}>&-             || true
+    [[ -z "${GITSTATUS_DAEMON_PID:-}" ]] || kill "$GITSTATUS_DAEMON_PID" &>/dev/null || true
   fi
-  unset _GITSTATUS_REQ_FD _GITSTATUS_RESP_FD GITSTATUS_DAEMON_PID _GITSTATUS_EXEC_HOOK
+  unset _GITSTATUS_REQ_FD _GITSTATUS_RESP_FD GITSTATUS_DAEMON_PID
   unset _GITSTATUS_DIRTY_MAX_INDEX_SIZE _GITSTATUS_CLIENT_PID
 }
 
@@ -305,6 +311,8 @@ function gitstatus_stop() {
 #   VCS_STATUS_WORKDIR              Git repo working directory. Not empty.
 #   VCS_STATUS_COMMIT               Commit hash that HEAD is pointing to. Either 40 hex digits or
 #                                   empty if there is no HEAD (empty repo).
+#   VCS_STATUS_COMMIT_ENCODING      Encoding of the HEAD's commit message. Empty value means UTF-8.
+#   VCS_STATUS_COMMIT_SUMMARY       The first paragraph of the HEAD's commit message as one line.
 #   VCS_STATUS_LOCAL_BRANCH         Local branch name or empty if not on a branch.
 #   VCS_STATUS_REMOTE_NAME          The remote name, e.g. "upstream" or "origin".
 #   VCS_STATUS_REMOTE_BRANCH        Upstream branch name. Can be empty.
@@ -352,7 +360,7 @@ function gitstatus_stop() {
 # shell or the call had failed.
 function gitstatus_query() {
   unset OPTIND
-  local opt dir timeout=() no_diff=0
+  local opt dir= timeout=() no_diff=0
   while getopts "d:c:t:p" opt "$@"; do
     case "$opt" in
       d) dir=$OPTARG;;
@@ -363,7 +371,7 @@ function gitstatus_query() {
   done
   (( OPTIND == $# + 1 )) || { echo "usage: gitstatus_query [OPTION]..." >&2; return 1; }
 
-  [[ -n "$GITSTATUS_DAEMON_PID" ]] || return  # not started
+  [[ -n "${GITSTATUS_DAEMON_PID-}" ]] || return  # not started
 
   local req_id="$RANDOM.$RANDOM.$RANDOM.$RANDOM"
   if [[ -z "${GIT_DIR:-}" ]]; then
@@ -408,6 +416,8 @@ function gitstatus_query() {
     VCS_STATUS_PUSH_COMMITS_BEHIND="${resp[24]:-0}"
     VCS_STATUS_NUM_SKIP_WORKTREE="${resp[25]:-0}"
     VCS_STATUS_NUM_ASSUME_UNCHANGED="${resp[26]:-0}"
+    VCS_STATUS_COMMIT_ENCODING="${resp[27]-}"
+    VCS_STATUS_COMMIT_SUMMARY="${resp[28]-}"
     VCS_STATUS_HAS_STAGED=$((VCS_STATUS_NUM_STAGED > 0))
     if (( _GITSTATUS_DIRTY_MAX_INDEX_SIZE >= 0 &&
           VCS_STATUS_INDEX_SIZE > _GITSTATUS_DIRTY_MAX_INDEX_SIZE_ )); then
@@ -450,6 +460,8 @@ function gitstatus_query() {
     unset VCS_STATUS_PUSH_COMMITS_BEHIND
     unset VCS_STATUS_NUM_SKIP_WORKTREE
     unset VCS_STATUS_NUM_ASSUME_UNCHANGED
+    unset VCS_STATUS_COMMIT_ENCODING
+    unset VCS_STATUS_COMMIT_SUMMARY
   fi
 }
 

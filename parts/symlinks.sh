@@ -78,7 +78,9 @@ then
 		for i in $links
 		do
 			set -- $i
-			ln -sf $dotdir/$1 $home/$2
+			echo i: $i
+			echo $home/$2
+			#ln -sf $dotdir/$1 $home/$2
 
 			if file $home/$2 | grep cannot > /dev/null 2>&1;
 			then

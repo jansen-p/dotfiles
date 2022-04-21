@@ -5,7 +5,7 @@
 # Usage: mbuild [-b git-ref] [kernel-arch]...
 #
 # Builds a bunch of gitstatusd-* binaries. Without arguments builds binaries
-# for all platforms. git-ref defaults to src.
+# for all platforms. git-ref defaults to master.
 #
 # Before using this script you need to set up build servers and list them
 # in ~/.ssh/config. There should be a Host entry for every value of `assets`
@@ -111,12 +111,14 @@ local -rA assets=(
   cygwin_nt-10.0-x86_64  build-windows-x86_64
   msys_nt-10.0-i686      build-windows-x86_64
   msys_nt-10.0-x86_64    build-windows-x86_64
+  darwin-arm64           build-macos-arm64
   darwin-x86_64          build-macos-x86_64
   freebsd-amd64          build-freebsd-amd64
   linux-aarch64          build-linux-aarch64
   linux-armv6l           build-linux-armv7l
   linux-armv7l           build-linux-armv7l
   linux-i686             build-linux-x86_64
+  linux-ppc64le          build-linux-ppc64le
   linux-x86_64           build-linux-x86_64
 )
 
@@ -137,7 +139,7 @@ function usage() {
   print -r -- 'usage: mbuild [-b REF] [KERNEL-ARCH]...'
 }
 
-local OPTARG opt git_ref=src
+local OPTARG opt git_ref=master
 local -i OPTIND
 while getopts ":b:h" opt; do
   case $opt in
@@ -180,14 +182,16 @@ local build='
 function build-unix() {
   local intro flags=(-sw)
   case $2 in
-    darwin-*) intro='PATH="/usr/local/bin:$PATH"';;
-    linux-*)  flags+=(-d docker);;
+    linux-ppc64le) ;;
+    linux-*)       flags+=(-d docker);;
+    darwin-arm64)  intro='PATH="/opt/homebrew/bin:$PATH"';;
+    darwin-*)      intro='PATH="/usr/local/bin:$PATH"';;
   esac
   ssh $1 -- /bin/sh -uex <<<"
     $intro
     cd /tmp
     $build ${2##*-} ${(j: :)${(@q)flags}}"
-  scp $1:/tmp/gitstatus/usrbin/gitstatusd-$2 $binaries/
+  scp $1:/tmp/gitstatus/usrbin/gitstatusd $binaries/gitstatusd-$2
 }
 
 function build-windows() {
@@ -208,10 +212,11 @@ function build-windows() {
       tmp='/cygdrive/c/tmp'
     ;|
     msys_nt-10.0-*)
-      flags+=(-s)
       tmp='/c/tmp'
       env='MSYSTEM=MSYS'
-      intro='pacman -Syu --noconfirm; pacman -S --needed --noconfirm git; '
+      # TODO: fix this (some errors about PGP keys).
+      # flags+=(-s)
+      # intro='pacman -S --needed --noconfirm git; '
       intro+='PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"'
       while true; do
         # TODO: run autorebase only when getting an error that can be fixed by autorebasing.
@@ -226,6 +231,8 @@ function build-windows() {
       done
       () {
         while true; do
+          # TODO: fix this (some errors about PGP keys).
+          break
           local -i fd
           exec {fd}< <(
             ssh $1 $c/$bin/env.exe $env c:/$bin/bash.exe -l 2>&1 <<<"
@@ -236,7 +243,7 @@ function build-windows() {
             while true; do
               IFS= read -u $fd -r line || return 0
               if [[ $line == *"warning: terminate MSYS2"* ]]; then
-                # At this point the machine is hosed. Rogue process with corrupted name
+                # At this point the machine is hosed. A rogue process with a corrupted name
                 # is eating all CPU. The top SSH connection won't terminate on its own.
                 ssh $1 powershell.exe <<<'Restart-Computer -Force' || true
                 sleep 30
@@ -260,20 +267,56 @@ function build-windows() {
     cd -- $tmp
     $build ${2##*-} ${(j: :)${(@q)flags}}
     exit"
-  scp $1:$c/tmp/gitstatus/usrbin/gitstatusd-$2 $binaries/
+  scp $1:$c/tmp/gitstatus/usrbin/gitstatusd $binaries/gitstatusd-$2
   chmod +x $binaries/gitstatusd-$2
 }
+
+if [[ -r /proc/version && "$(</proc/version)" == *Microsoft* ]]; then
+  () {
+    (( $# )) || return 0
+    print -ru2 -- "WARNING: lock files exist: $@"
+    (( $# )) && rm -- $@
+  } $locks/*(N)
+
+  function flock() {
+    local fd
+    sysopen -ro cloexec -u fd <(
+      exec </dev/null 2>/dev/null
+      (
+        trap '' TERM PIPE
+        local fd
+        while true; do
+          sysopen -wo create,excl -u fd -- $1 && break
+          sleep 1
+        done
+        exec {fd}>&-
+        while true; do
+          print || break
+        done
+        rm -- $1
+      ) &!
+    )
+    local REPLY
+    IFS= read -ru $fd
+  }
+else
+  function flock() {
+    : >>$1
+    zsystem flock $1
+  }
+fi
 
 function build() (
   setopt xtrace
   local platform=$1
   local machine=$assets[$platform]
-  print -n >>$locks/$machine
-  zsystem flock $locks/$machine
+  flock $locks/$machine
   build-${protocol[(k)$platform]} $machine $platform
   local tmp=gitstatusd-$platform.tmp.$$.tar.gz
-  ( cd -q -- $binaries; GZIP=-9 tar -czf $tmp gitstatusd-$platform )
+  ( cd -q -- $binaries; tar --owner=0 --group=0 -I 'gzip -9' -cf $tmp gitstatusd-$platform )
   mv -f -- $binaries/$tmp $binaries/gitstatusd-$platform.tar.gz
+  # Make sure the last command is a built-in (important for flock).
+  :
 )
 
 function mbuild() {
@@ -358,4 +401,8 @@ function run-process-tree() {
 }
 
 mkdir -p -- $logs $locks $binaries
-run-process-tree mbuild $@
+
+() {
+  run-process-tree mbuild $@
+  exit
+} "$@"

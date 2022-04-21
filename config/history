@@ -1,3 +1,4 @@
+cd .dotfiles/
 rename i3-workspace-groups-master_back
 rename lemonbar_dlsf
 rename lemonbar2_l
@@ -13,16 +14,8 @@ shell mkdir tests
 open_with 
 open_with unzip ex
 shell unzip exa-linux-x86_64-v0.10.1.zip
+delete
 u lec
 shell unlink FFS
 cd 
 scout -ftsea req
-rename Sören
-shell vim .gitignore
-open_with code
-rename rontend.xopp
-rename frontend.xopp
-shell mkdir docs
-cd .vim
-delete
-cd .dotfiles/

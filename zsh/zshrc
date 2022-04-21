@@ -1,3 +1,4 @@
+GITSTATUS_LOG_LEVEL=DEBUG
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -16,7 +17,7 @@ zstyle ":conda_zsh_completion:*" use-groups true
 TERM=xterm-256color #fixes weird bug in python shell
 zmodload zsh/zprof
 
-ZSH_THEME="powerlevel10k"
+ZSH_THEME="powerlevel10k/powerlevel10k"
 #ZSH_THEME="agkozak"
 
 
@@ -33,7 +34,7 @@ GTK_THEME=Adwaita:dark
 plugins=(
   #chucknorris
   colorize
-  z
+#  z
   zsh-navigation-tools
   vi-mode
   auto-ls
@@ -50,8 +51,6 @@ source $ZSH/plugins/z/z.sh   #jump around with z FIND
 source $ZSH/oh-my-zsh.sh
 
 alias ls='exa --icons'
-
-source /opt/ros/noetic/setup.zsh
 
 bindkey '^ ' autosuggest-accept  #for zsh-autosuggestions
 
@@ -73,4 +72,4 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-source /home/len/.config/broot/launcher/bash/br
+#source /home/len/.config/broot/launcher/bash/br

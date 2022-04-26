@@ -58,7 +58,7 @@ set guifont=oriya:h10
 set autoindent  "If you're indented, new lines will also be indented
 set hlsearch
 set smartindent  "Automatically indents lines after opening a bracket in programming languages
-set clipboard=unnamedplus
+"set clipboard=unnamedplus
 set foldcolumn=1
 set backspace=2  "This makes the backspace key function like it does in other programs.
 set tabstop=4  "How much space Vim gives to a tab

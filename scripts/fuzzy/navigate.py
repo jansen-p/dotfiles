@@ -17,7 +17,7 @@ from tracker import Tracker, Matcher, bcolors
 
 #get the root-dir
 user = pwd.getpwuid(os.getuid())[0]
-with open('/home/'+user+'/.location') as s:
+with open(os.getenv("HOME")+'/.location') as s:
     loc = s.readline().strip()
 wd = os.getenv('FUZZY')
 loc_name = loc.split('/')[-1] if loc[-1] != '/' else loc.split('/')[-2] #name of the dictionary which is stored in navi_list

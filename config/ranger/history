@@ -25,4 +25,6 @@ rename frontend.xopp
 shell mkdir docs
 cd .vim
 delete
+search pytorch
+scout -ftsea pyto
 cd .dotfiles/

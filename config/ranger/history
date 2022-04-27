@@ -6,8 +6,6 @@ rename waybar_hi
 rename conkyrc
 rename styleConfig_backup
 rename dunstrc
-cd .config/
-shell 
 open_with 3
 shell mkdir tests
 open_with 
@@ -24,7 +22,27 @@ rename rontend.xopp
 rename frontend.xopp
 shell mkdir docs
 cd .vim
-delete
 search pytorch
 scout -ftsea pyto
 cd .dotfiles/
+shell mkdir MLGS
+shell mkdir CPS
+rename Cyber-Physical Systems
+shell 
+shell mkdir Deep
+rename MLGS
+rename Deep Learning
+shell mkdir Cloud\ Computing
+shell mkdir Bionik
+open_with o
+rename CloudComputing
+rename DeepLearning
+rename CyberPhysicalSystems
+delete
+cd .config/
+scout -ftsea Prefer
+scout -ftsea prefer
+scout -ftsea Preferences
+open_with m
+scout -ftsea ite
+cd .config/iterm2/

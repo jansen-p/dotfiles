@@ -6,7 +6,7 @@ import os
 
 NAS = os.getenv('NAS')
 
-uni = NAS+"/uni/1Master/"
+uni = NAS+"/uni/1Master/2.Sem/"
 swap = NAS+"/swap/"
 home = str(Path.home())
 
@@ -18,8 +18,12 @@ dic = {
         "pi": swap+"Coding/pyt/gpio",
         "abm": swap+"Coding/abeautifulmind",
         "r": swap+"Coding/R",
-        "ml": uni+"ML",
         "gui": swap+"guitar",
+        "mlgs": uni+"MLGS",
+        "bio": uni+"Bionik",
+        "cloud": uni+"CloudComputing",
+        "cps": uni+"CyberPhysicalSystems",
+        "deep": uni+"DeepLearning",
         }
 
 def get_dict():

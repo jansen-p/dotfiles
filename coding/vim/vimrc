@@ -27,7 +27,6 @@ call vundle#begin()
 	"Plugin 'kshenoy/vim-signature' "mark manager, displays them etc
 	Plugin 'brennier/quicktex'
 	Plugin 'lervag/vimtex'
- 	Plugin 'gauteh/vim-evince-synctex'
 	"Plugin 'ycm-core/YouCompleteMe'
 	Plugin 'jpalardy/vim-slime'
 	Plugin 'ryanoasis/vim-devicons'
@@ -79,7 +78,7 @@ set t_vb=
 set visualbell   "stop beeping
 set grepprg=grep\ -nH\ $*
 source $VIMRUNTIME/menu.vim
-map ran :!termite -e ranger &<CR>
+map ran :!iterm -e ranger &<CR>
 map cdr cd %:d 
 
 "python

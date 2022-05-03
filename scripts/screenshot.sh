@@ -12,11 +12,11 @@ image=$(ls | grep -E '^[0-9]+.png' | cut -d '.' -f1 | sort -g | tail -n 1)
 file=$(($image+1))".png"
 
 #take screenshot
-import $file
+screencapture -Si $file
 
 #optimize image
-optipng -o4 $file > /dev/null 2>&1
+#optipng -o4 $file > /dev/null 2>&1
 
 #return command
-echo "\includegraphics[width=<+++>cm]{sections/imgs/"$file"}<++>"
+echo "\includegraphics[width=<+++>cm]{imgs/"$file"}<++>"
 

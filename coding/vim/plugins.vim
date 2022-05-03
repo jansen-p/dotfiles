@@ -65,7 +65,7 @@ let g:CtrlSpaceSaveWorkspaceOnExit = 1
 "vimtex
 "nnoremap <leader>ls :VimtexForwardSearch<CR>
 let g:tex_flavor = "pdflatex"
-let g:vimtex_view_general_viewer = 'evince'
+let g:vimtex_view_general_viewer = 'open -a preview'
 "let g:vimtex_latexmk_progname= '/usr/bin/nvr'
 "let g:vimtex_latexmk_options="-pdf -pdflatex='pdflatex -file-line-error -shell-escape -synctex=1'"
 "let g:vimtex_view_general_options_latexmk = '-reuse-instance'

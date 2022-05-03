@@ -1,14 +1,6 @@
-rename i3-workspace-groups-master_back
-rename lemonbar_dlsf
-rename lemonbar2_l
-rename rust_hi
-rename waybar_hi
-rename conkyrc
-rename styleConfig_backup
 rename dunstrc
 open_with 3
 shell mkdir tests
-open_with 
 open_with unzip ex
 shell unzip exa-linux-x86_64-v0.10.1.zip
 u lec
@@ -38,7 +30,6 @@ open_with o
 rename CloudComputing
 rename DeepLearning
 rename CyberPhysicalSystems
-delete
 cd .config/
 scout -ftsea Prefer
 scout -ftsea prefer
@@ -46,3 +37,14 @@ scout -ftsea Preferences
 open_with m
 scout -ftsea ite
 cd .config/iterm2/
+open_with notability
+scout -ftsea bin
+cd /bin
+shell zip -r exe.zip exercise_01
+rename Unterlagen.pdf
+shell mkdir exercises
+open_with 
+shell mkdir imgs
+open_with 1
+open_with open -a preview
+delete

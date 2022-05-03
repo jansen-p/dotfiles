@@ -3,4 +3,4 @@ export EDITOR='vim -w'
 export FUZZY=$HOME/.bin/fuzzy/
 export NAS=$HOME/Drive
 
-PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/bin/usr/sbin:~/.bin:~/.binaries:~/Coding/miniconda3/bin:/User/jan/.local/bin
+PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/bin:/bin/usr/sbin:~/.bin:~/.binaries:~/Coding/miniconda3/bin:/User/jan/.local/bin:/Library/TeX/texbin

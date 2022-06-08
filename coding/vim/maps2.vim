@@ -28,7 +28,7 @@ command W w !sudo tee % > /dev/null
 
 "changes working dir to current dir
 nmap cd :cd %:h<cr> 
-nmap bd :bd!<cr> 
+"nmap bd :bd!<cr> 
 
 "map cd :cd %:p <CR>
 

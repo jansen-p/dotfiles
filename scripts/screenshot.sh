@@ -1,6 +1,9 @@
 #!/bin/sh
 
 loc=$1
+if [[ $loc == *"sections" ]]; then
+	loc=${loc}"/.."
+fi
 
 cd $loc'/imgs'
 

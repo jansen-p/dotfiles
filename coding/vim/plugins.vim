@@ -67,7 +67,7 @@ let g:CtrlSpaceSaveWorkspaceOnExit = 1
 let g:tex_flavor = "pdflatex"
 let g:vimtex_view_general_viewer = 'open -a preview'
 "let g:vimtex_latexmk_progname= '/usr/bin/nvr'
-"let g:vimtex_latexmk_options="-pdf -pdflatex='pdflatex -file-line-error -shell-escape -synctex=1'"
+let g:vimtex_latexmk_options="-pdf -pdflatex='pdflatex -file-line-error -shell-escape -synctex=1'"
 "let g:vimtex_view_general_options_latexmk = '-reuse-instance'
 "let g:vimtex_fold_enabled = 0
 "let g:vimtex_toc_resize = 0

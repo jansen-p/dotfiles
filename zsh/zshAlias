@@ -186,23 +186,29 @@ callNavigate(){
 o(){
 	files=(*)
 
-	for i in $files
+	for var in "$@"
 	do
-		if [[ $1 == $i ]];
+		for i in $files
+		do
+			if [[ $var == $i ]];
+			then
+				open $i
+				#of $i #full file name match, open regularly
+				break
+			elif [[ "$(echo $i | grep $var)" != "" ]];
+			then
+				hit="$i"
+			fi
+		done
+
+		#no full match!
+		if [ -n "$hit" ]; 
 		then
-			of $i #full file name match, open regularly
-			break
-		elif [[ "$(echo $i | grep $1)" != "" ]];
-		then
-			hit="$i"
+			open $hit
+			#of $hit
 		fi
 	done
 
-	#no full match!
-	if [ -n "$hit" ]; 
-	then
-		of $hit
-	fi
 
 }
 of(){
@@ -230,7 +236,7 @@ of(){
 			*.avi)      $videos $1 &;;
 
 			*.zip)      file-roller $1 &;;
-			*.pdf)      evince $1 &;;
+			*.pdf)      open $1 &;;
 			*.exe)		wine $1 &;;
 			*.docx)     libreoffice $1 &;;
 			*)			vim $1;;

@@ -1,14 +1,3 @@
-rename dunstrc
-open_with 3
-shell mkdir tests
-open_with unzip ex
-shell unzip exa-linux-x86_64-v0.10.1.zip
-u lec
-shell unlink FFS
-cd 
-scout -ftsea req
-rename Sören
-shell vim .gitignore
 open_with code
 rename rontend.xopp
 rename frontend.xopp
@@ -43,8 +32,19 @@ cd /bin
 shell zip -r exe.zip exercise_01
 rename Unterlagen.pdf
 shell mkdir exercises
-open_with 
 shell mkdir imgs
 open_with 1
 open_with open -a preview
+shell mkdir project3
+shell mkdir nut
+shell mkdir no
+open_with 
+rename beispiele_nutritriolyzer.pdf
 delete
+bulkrename 
+rename oli.ipynb
+rename solution_12.pdf
+open_with 2
+rename sheet_14.pdf
+rename solution_14.pdf
+rename solution_13.pdf

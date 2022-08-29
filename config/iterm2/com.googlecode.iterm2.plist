@@ -2461,6 +2461,19 @@
 	<false/>
 	<key>SeparateStatusBarsPerPane</key>
 	<false/>
+	<key>Snippets</key>
+	<array>
+		<dict>
+			<key>guid</key>
+			<string>34AAE825-796E-46C4-BECB-BA18F6DC0846</string>
+			<key>title</key>
+			<string>https://www.strava.com/clubs/TalenteSpendenSportTUMRunWalkHike</string>
+			<key>value</key>
+			<string>https://www.strava.com/clubs/TalenteSpendenSportTUMRunWalkHike</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
 	<key>SoundForEsc</key>
 	<false/>
 	<key>SplitPaneDimmingAmount</key>

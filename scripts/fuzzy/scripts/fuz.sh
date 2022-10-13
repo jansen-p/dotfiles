@@ -2,6 +2,10 @@
 set -e
 #src=~/.bin/fuzzy
 
+################
+# run fuzzy finder within set location
+################
+
 source ~/.zshenv #necessary cause env isn't sourced when executed by i3wm
 
 main() {

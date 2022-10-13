@@ -3,6 +3,7 @@ import sys
 import os
 import pickle
 import pwd
+import argparse
 
 from prettytable import PrettyTable
 from tracker import Tracker, Matcher, bcolors
@@ -15,6 +16,28 @@ from tracker import Tracker, Matcher, bcolors
 #      update them to something like 7,6,4,4
 
 
+def set_parser_args(parser: argparse.ArgumentParser):
+    parser.add_argument("--input", type=str, default=""),
+    parser.add_argument("--num", type=int, default="-1",),
+    parser.add_argument("--change_from", default="-1"),
+    parser.add_argument("--change_to", type=int, default="-1",),
+
+    parser.add_argument("--init", action="store_true")
+    parser.add_argument("--update", action="store_true")
+    parser.add_argument("--fetch", action="store_true")
+    parser.add_argument("--delete", action="store_true")
+    parser.add_argument("--path", action="store_true")
+    parser.add_argument("--show", action="store_true")
+    parser.add_argument("--open", action="store_true")
+
+    parser.add_argument("--help", action="store_true")
+
+
+parser = argparse.ArgumentParser(description="Process some integers.", add_help=False)
+set_parser_args(parser)
+args = parser.parse_args()
+
+
 # get the root-dir
 user = pwd.getpwuid(os.getuid())[0]
 with open(os.getenv("HOME") + "/.location") as s:
@@ -25,18 +48,19 @@ loc_name = (
 )  # name of the dictionary which is stored in navi_list
 
 # Gets printed if no args are given
-if len(sys.argv) == 1:
+if args.help or args.input in ["-h", "--help"]:
     txt = {
-        "-i": "Initialized/overwrites the dictionary for the given location.",
-        "-u": "Updates the dictionary, untracked subdirs are added.",
-        "-r": "Removes the dictionary",
-        "ul": "Lists the currently supported locations (by the script dic.py, ZSH)",
-        "us or -s": "Lists the sorted contents of the dictionary",
-        "ush or -sh": "Same as -s, just the first 15 entries",
-        "up or -p": "Returns the current path",
-        "ua <num> <score>": "Alters the score of dictionary entry with number <num> ",
+        "--init": "Initialized/overwrites the dictionary for the given location.",
+        "--fetch": "Updates the dictionary, untracked subdirs are added.",
+        "--delete": "Removes the dictionary",
+        "--show": "Same as -s, just the first n entries",
+        "--path": "Returns the current path",
+        "--update <num> <score>": "Alters the score of dictionary entry with number <num> ",
+        "": "",
+        "External commands:": "",
         "ut [<depth>]": "Shows the tree of the root directory. Optional: depth",
-        "un <dir> [<dst>]": "Set new path (ZSH). Optional: 'search string'",
+        "ul": "Lists the currently supported locations (by the script dic.py, ZSH)",
+        "un <dir> [<dst>]": "Set new path (ZSH).",
     }
 
     t = PrettyTable(["Flags", "Description"])
@@ -63,90 +87,75 @@ if len(sys.argv) == 1:
 
     exit()
 
-inp = sys.argv[1]
-# inp = sys.stdin.readline().strip() #for piping
 
-
-if inp == "-i":
+if args.init:
     # initialize/overwrite the dictionary
+    val = input(
+        "This will initialize/overwrite the history for this dir. Continue? (y/n) "
+    )
     tracker = Tracker(loc, loc_name, depth=3, init=True)
     tracker.save()
     exit()
 
 tracker = Tracker(loc, loc_name, depth=3)
 
-# print the sorted entries
-if inp == "-s":
-    print(bcolors.OKBLUE + "All entries for " + loc_name + ":\n" + bcolors.ENDC)
-    tracker.print(None)
-
-elif inp == "-r":  # print the name of the dictionary
-    print(loc_name)
-
-# print the first 15 sorted entries
-elif inp == "-sh":
-    if len(sys.argv) == 3:
-        try:
-            num = int(sys.argv[2])
-        except ValueError:
-            print("Error: Second argument has to be an integer!")
-            exit()
+# print the first n sorted entries
+if args.show:
+    if args.num != -1:
+        num = args.num
     else:
-        num = 10
+        num = 15
 
     print(bcolors.OKBLUE + "Top entries for " + loc_name + ":\n" + bcolors.ENDC)
-    # for x,index in zip(sort_dict(dic)[:num],range(num)):
-    #    print(str(index)+": ",x[1],"-",x[0])
 
     tracker.print(num)
 
 # alters the dictionary: called by f.ex.: u -a 12 42
-elif inp == "-a":
-    if len(sys.argv) == 4:
-        try:
-            num = sys.argv[2]
-            score = int(sys.argv[3])
+elif args.update:
+    assert args.change_from != -1 and args.change_to != -1, (
+        bcolors.FAIL
+        + "Bad number of arguments."
+        + bcolors.ENDC
+        + "\nNeed two numbers: First one for the "
+        + bcolors.OKBLUE
+        + "entry number"
+        + bcolors.ENDC
+        + ", second one for the "
+        + bcolors.OKBLUE
+        + "new score."
+        + bcolors.ENDC
+    )
 
-            tracker.set_dict_score(num, score)
-        except ValueError:
-            print("Error: Arguments have to be integers!")
-            exit()
+    tracker.set_dict_score(args.change_from, args.change_to)
+
+elif args.delete:
+    val = input("This will delete the history for this dir. Continue? (y/n) ")
+    if val == "y":
+        tracker.remove_dict()
+        print("Deleted dictionary for " + loc_name)
     else:
-        print(
-            bcolors.FAIL
-            + "Bad number of arguments."
-            + bcolors.ENDC
-            + "\nNeed two numbers: First one for the "
-            + bcolors.OKBLUE
-            + "entry number"
-            + bcolors.ENDC
-            + ", second one for the "
-            + bcolors.OKBLUE
-            + "new score."
-            + bcolors.ENDC
-        )
+        print("Aborted.")
+
 
 # update the dictionary
-elif inp == "-u":
+elif args.fetch:
     tracker.update()
     tracker.save()
 
 # print the current root folder
-elif inp == "-p":
+elif args.path:
     print(bcolors.OKBLUE + "Current path: " + bcolors.ENDC + loc)
-
-elif inp == "-o":
-    raise NotImplementedError
 
 # find a match, returns path for 'cd'
 else:
     if not tracker.find_hit(
-        inp, Matcher.fuzzy
+        args.input, match=Matcher.fuzzy, match_file=args.open, response=args.open
     ):  # find_hit called twice, if no match in first run, rescan dirs and try again
-        tracker.update(True)  # silent
-        tracker.save()
-        if not tracker.find_hit(
-            inp, Matcher.fuzzy, False
-        ):  # and print msg if nothing found
-            print(loc)  # no match, open dir root
+        if not args.open:
+            tracker.update(True)  # silent
+            tracker.save()
+            if not tracker.find_hit(
+                args.input, match=Matcher.fuzzy, response=False
+            ):  # and print msg if nothing found
+                print(loc)  # no match, open dir root
 0

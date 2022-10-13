@@ -99,15 +99,13 @@ alias gits='alias | grep git'
 
 #ros
 #alias rossrc='source devel/setup.zsh'
-alias rossrc='source /opt/ros/melodic/setup.zsh && source devel/setup.zsh'
+#alias rossrc='source /opt/ros/melodic/setup.zsh && source devel/setup.zsh'
 
 #========================================================================================
 #navigation stuff
-alias ush='u -sh'
-alias us='u -s'
-alias up='u -p'
-alias ua='u -a'
-alias uo='u -o'
+alias us='u_utils --show'
+alias up='u_utils --path'
+alias u='u_utils --input'
 
 #tree
 ut(){
@@ -131,58 +129,32 @@ un(){
 		echo $1 | python3 ~/.bin/fuzzy/dic.py > ~/.location
 		echo "New location set:"
 		cat ~/.location
-		echo
-
-		if [ "" != "$2" ]
-		then
-			callNavigate $2
-		fi
 	fi
 }
 
-
-#rest of the tools
-u(){
-	if [[ $1 = "-i" ]];
-	then
-		echo "Current directory:"
-		cat ~/.location
-		echo -ne "\nThis will initialize/overwrite the history for this dir. Continue? (y/n)\n"; read answer
-		echo
-		if [[ $answer = "y" ]];
-		then
-			callNavigate $1
-		fi
-	elif [[ $1 = "-r" ]]; #remove dictionary file
-	then
-		echo -ne "\nThis will remove the history for this dir. Continue? (y/n)\n"; read answer
-		echo
-		if [[ $answer = "y" ]];
-		then
-			res=$(python3 ~/.bin/fuzzy/navigate.py $1)
-			count=$(echo $res | grep " " | wc -l) #counts spaces
-			if [[ $count -eq "0" ]]; #correct path
-			then
-				rm ~/.bin/fuzzy/.navi_hist/$res
-				echo "Deleted dictionary!"
-			else
-				echo "No dictionary file found."
-			fi
-		fi
-	else
-		callNavigate $@
-	fi
+ua(){
+	u_utils --update --change_from=$1 --change_to=$2
 }
-callNavigate(){
-	res=$(python3 ~/.bin/fuzzy/navigate.py $@)
-	count=$(echo $res | grep " " | wc -l) #counts spaces
-	if [[ $count -eq "0" ]]; #correct path
-	then
-		cd $res
+
+uo(){
+	res=$(u_utils --open --input=$1) # outputs either path to file or error message
+	if [[ $string != *" "* ]]; then
+		open $res
 	else
 		echo $res
 	fi
 }
+
+u_utils(){
+	if [[ $1 == "--input" ]];
+	then 
+		res=$(python3 ~/.bin/fuzzy/navigate.py --input=$2)
+		cd $res
+	else
+		python3 ~/.bin/fuzzy/navigate.py $@
+	fi
+}
+
 
 o(){
 	files=(*)

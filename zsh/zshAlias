@@ -107,6 +107,7 @@ alias ush='u -sh'
 alias us='u -s'
 alias up='u -p'
 alias ua='u -a'
+alias uo='u -o'
 
 #tree
 ut(){
@@ -169,11 +170,11 @@ u(){
 			fi
 		fi
 	else
-		callNavigate $1 $2 $3
+		callNavigate $@
 	fi
 }
 callNavigate(){
-	res=$(python3 ~/.bin/fuzzy/navigate.py $1 $2 $3)
+	res=$(python3 ~/.bin/fuzzy/navigate.py $@)
 	count=$(echo $res | grep " " | wc -l) #counts spaces
 	if [[ $count -eq "0" ]]; #correct path
 	then

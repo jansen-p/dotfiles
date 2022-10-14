@@ -8,10 +8,6 @@ import argparse
 from prettytable import PrettyTable
 from tracker import Tracker, Matcher, bcolors
 
-# NOTE: If single words are printed out (e.g. print("hi"), zsh will interpret them as search strings!
-#      To prevent this, just add whitespace behind.
-
-
 # TODO: option to "redistribute" the score, e.g. if first entries are: 9,7,2,2:
 #      update them to something like 7,6,4,4
 
@@ -40,8 +36,13 @@ args = parser.parse_args()
 
 # get the root-dir
 user = pwd.getpwuid(os.getuid())[0]
-with open(os.getenv("HOME") + "/.location") as s:
-    loc = s.readline().strip()
+
+try:
+    with open(os.getenv("HOME") + "/.location") as s:
+        loc = s.readline().strip()
+except:
+    loc = os.path.join("/Users", user)
+
 wd = os.getenv("FUZZY")
 loc_name = (
     loc.split("/")[-1] if loc[-1] != "/" else loc.split("/")[-2]
@@ -87,14 +88,20 @@ if args.help or args.input in ["-h", "--help"]:
 
     exit()
 
+# print the current root folder
+if args.path:
+    print(bcolors.OKBLUE + "Current path: " + bcolors.ENDC + loc)
+    exit()
+
 
 if args.init:
     # initialize/overwrite the dictionary
     val = input(
-        "This will initialize/overwrite the history for this dir. Continue? (y/n) "
+        f"This will initialize/overwrite the history for this dir ({loc}). Continue? (y/n) "
     )
-    tracker = Tracker(loc, loc_name, depth=3, init=True)
-    tracker.save()
+    if val.lower() == "y":
+        tracker = Tracker(loc, loc_name, depth=3, init=True)
+        tracker.save()
     exit()
 
 tracker = Tracker(loc, loc_name, depth=3)
@@ -129,10 +136,9 @@ elif args.update:
     tracker.set_dict_score(args.change_from, args.change_to)
 
 elif args.delete:
-    val = input("This will delete the history for this dir. Continue? (y/n) ")
+    val = input(f"This will delete the history for this dir ({loc}). Continue? (y/n) ")
     if val == "y":
         tracker.remove_dict()
-        print("Deleted dictionary for " + loc_name)
     else:
         print("Aborted.")
 
@@ -142,10 +148,6 @@ elif args.fetch:
     tracker.update()
     tracker.save()
 
-# print the current root folder
-elif args.path:
-    print(bcolors.OKBLUE + "Current path: " + bcolors.ENDC + loc)
-
 # find a match, returns path for 'cd'
 else:
     if not tracker.find_hit(
@@ -154,8 +156,8 @@ else:
         if not args.open:
             tracker.update(True)  # silent
             tracker.save()
+
             if not tracker.find_hit(
                 args.input, match=Matcher.fuzzy, response=False
             ):  # and print msg if nothing found
-                print(loc)  # no match, open dir root
-0
+                pass  # print(loc)  # no match, open dir root

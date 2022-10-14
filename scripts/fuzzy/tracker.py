@@ -81,8 +81,10 @@ class Tracker:
 
     # returns an initialized dictionary of the given root directory
     def init(self):
-        dic = dict((path, 0) for path in self.get_subdirs(self.current_location))
-        print(bcolors.OKBLUE + "Subdirectories found:\n" + bcolors.ENDC)
+        dic = dict(
+            (path, 0) for path in self.get_subdirs(self.current_location, silent=True)
+        )
+        print(bcolors.OKBLUE + "Subdirectories found:" + bcolors.ENDC)
         for i in dic:
             print(
                 "  - " + i
@@ -169,14 +171,10 @@ class Tracker:
     def find_hit(self, inp, match: Callable, match_file=False, response=False):
 
         sorted_tuples = self.sort_dict()
-        hit = False
-        first_run = True
 
         def gen(folder, files):
             for f in files:
                 yield folder + "/" + f
-
-        import sys
 
         for row in sorted_tuples:
             # return match with highest score
@@ -194,9 +192,6 @@ class Tracker:
                     for f in os.listdir(folder)
                     if os.path.isfile(os.path.join(folder, f))
                 ]
-                # print(folder)
-                # print(files)
-                # print("TEST")
                 for f in gen(key, files):
                     if match(f.lower(), inp.lower()):
                         print(
@@ -204,31 +199,29 @@ class Tracker:
                                 self.current_location, row[0], f.split("/")[-1]
                             )
                         )
-                        return
+                        return True
             else:
                 # if inp.lower() in row[0].lower(): #case-insensitive comparison
                 if match(
                     key, inp.lower()
                 ):  # variant: just look at deepest two subdirs for inp
-                    hit = True
                     val = row[0]
                     self.data[val] = self.data[val] + 1
                     self.save()
                     print(self.current_location + "/" + val)
-                    return hit
+                    return True
 
-        if not hit:
-            if response:
-                print(
-                    bcolors.FAIL
-                    + "No match for search string '"
-                    + inp
-                    + "'"
-                    + bcolors.ENDC
-                    + "\n"
-                )
-                # print(bcolors.OKBLUE+"Rescanning...\n"+bcolors.ENDC)
-        return hit
+        if response:
+            print(
+                bcolors.FAIL
+                + "No match for search string '"
+                + inp
+                + "'"
+                + bcolors.ENDC
+                + "\n"
+            )
+            # print(bcolors.OKBLUE+"Rescanning...\n"+bcolors.ENDC)
+        return False
 
     def rescale(self, minimum=0, maximum=20):
         vals = (

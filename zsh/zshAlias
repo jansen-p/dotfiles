@@ -103,11 +103,14 @@ alias gits='alias | grep git'
 
 #========================================================================================
 #navigation stuff
-alias us='u_utils --show'
-alias up='u_utils --path'
-alias u='u_utils --input'
+nav="python3 ~/.bin/fuzzy/navigate.py"
+#alias us='u_utils --show'
+alias us="$nav --show"
+alias up="$nav --path"
+#alias u='u_utils --input'
+alias u=$nav
 
-#tree
+
 ut(){
 	if [[ -z "$1" ]]
 	then
@@ -133,11 +136,11 @@ un(){
 }
 
 ua(){
-	u_utils --update --change_from=$1 --change_to=$2
+	eval "$nav --update --change_from=$1 --change_to=$2"
 }
 
 uo(){
-	res=$(u_utils --open --input=$1) # outputs either path to file or error message
+	res=$(eval "$nav --open --input=$1") # outputs either path to file or error message
 	if [[ $string != *" "* ]]; then
 		open $res
 	else
@@ -145,14 +148,9 @@ uo(){
 	fi
 }
 
-u_utils(){
-	if [[ $1 == "--input" ]];
-	then 
-		res=$(python3 ~/.bin/fuzzy/navigate.py --input=$2)
-		cd $res
-	else
-		python3 ~/.bin/fuzzy/navigate.py $@
-	fi
+uf(){
+	res=$(eval "$nav --input=$1")
+	cd $res
 }
 
 
